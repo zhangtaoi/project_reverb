@@ -1,0 +1,15 @@
+# audio
+*.mp3
+*.wav
+*.flac
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+*.nbc
+*.nbi
+
+# OS
+Thumbs.db
+.DS_Store

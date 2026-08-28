@@ -7,7 +7,7 @@ setlocal
 
 rem ---- Edit these ----
 set SRC=One More Light.wav
-set DST=output.wav
+set DST=output\output.wav
 set MIX=0.5
 set LOUDN=None
 rem ---------------------

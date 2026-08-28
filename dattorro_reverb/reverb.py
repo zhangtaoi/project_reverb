@@ -86,11 +86,12 @@ def _run(x, pd_amount, pf_amount, id1, id2, decay, dd1, damp,
             v = y + g * buf[o + wp]
 
         # ── Modulation: triangle wave excursion ──
+        # C code: readOffset-- at t<32768 (delay shortens), readOffset++ at t>=32768 (delay lengthens).
         if (i & 0x7ff) == 0:
             if (i // 2048) % 32 < 16:
-                mod_acc = max(-16, mod_acc - 1)
-            else:
                 mod_acc = min(16, mod_acc + 1)
+            else:
+                mod_acc = max(-16, mod_acc - 1)
 
         # ── Tank with cross-feedback ──
         # cross-feedback from the OTHER half's postDampingDelay
@@ -170,8 +171,8 @@ def _run(x, pd_amount, pf_amount, id1, id2, decay, dd1, damp,
         o = offs[12]; d = lens[12]; wp = i % d
         r += buf[o + (wp - pod_off[1, 0]) % d]
 
-        L[i] = l * 0.1666667  # 1/6 scale for 6 tap terms
-        R[i] = r * 0.1666667
+        L[i] = l
+        R[i] = r
 
     return L, R
 

@@ -16,3 +16,10 @@ Thumbs.db
 
 # temp test files
 tests/tmp*.md
+
+# output files
+output/
+
+# C build artifacts
+*.exe
+*.obj

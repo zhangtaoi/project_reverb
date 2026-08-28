@@ -19,7 +19,9 @@ def load_params(md_path, default=None):
                 if not line.startswith("|"):
                     continue
                 cells = [c.strip() for c in line.strip("|").split("|")]
-                if len(cells) < 3 or cells[0].startswith("name"):
+                if len(cells) < 3:
+                    continue
+                if cells[0].startswith("name") or cells[0].startswith("---"):
                     continue
                 v = cells[2].strip()
                 low = v.lower()

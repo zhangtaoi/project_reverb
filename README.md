@@ -9,27 +9,24 @@
 - `fdn_reverb/`      —— **FDN 反馈延迟网络**（理论派，待实现）
 - `tests/`           —— 单元测试
 
-## Dattorro 混响（当前 MVP）
+## 算法
 
-**重度参考：** [el-visio/dattorro-verb](https://github.com/el-visio/dattorro-verb)（C, 61★）
-
-### 拓扑
-
-```
-pre-delay → pre-filter(LP) → 4× input diffusion(allpass)
-  → split into 2 tank halves (cross-feedback):
-    decay diff 1 (modulated allpass) → pre-damping delay
-    → damping(LP) → decay diff 2 (allpass) → post-damping delay
-  → output: weighted sum of 6 delay-line tap points
-```
+| 目录 | 风格 | 拓扑 | 特点 |
+|---|---|---|---|
+| `dattorro_reverb/` | 论文忠实版 | pre-delay → pre-filter → 4 input diffusion → 2 tank halves(cross-feedback) → 6 tap 输出 | 稠密厚重，论文原味 |
+| `dattorro_comb/` | 紧凑简化版 | 8 并联梳状 → 2×(3 串联全通) → 2 梯形全通(LFO) → 阻尼 | 轻量明亮，修改自由 |
 
 ### 使用
 
 ```bash
+# 论文忠实版
 python -m dattorro_reverb.demo "One More Light.wav" output.wav
+
+# 紧凑简化版
+python -m dattorro_comb.demo "One More Light.wav" output.wav
 ```
 
-参数统一在 `dattorro_reverb/params.md` 配置，也可 CLI 覆盖：
+参数统一在各自文件夹的 `params.md` 配置，也可 CLI 覆盖：
 ```bash
 python -m dattorro_reverb.demo in.wav out.wav --mix=0.4 --loudn_out=-16
 ```

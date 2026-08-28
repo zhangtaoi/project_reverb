@@ -13,3 +13,6 @@ __pycache__/
 # OS
 Thumbs.db
 .DS_Store
+
+# temp test files
+tests/tmp*.md

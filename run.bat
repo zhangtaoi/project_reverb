@@ -6,9 +6,9 @@ rem ==================================================
 setlocal
 
 rem ---- Edit these ----
-set SRC=One More Light.mp3
-set DST=output_mix0.wav
-set MIX=0.0
+set SRC=One More Light.wav
+set DST=output.wav
+set MIX=0.5
 set LOUDN=None
 rem ---------------------
 rem  SRC   input audio (project root; may be a full path)

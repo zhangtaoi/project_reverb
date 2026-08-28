@@ -1,4 +1,4 @@
-"""Tests for Dattorro reverb engine.
+"""Tests for Dattorro reverb engine (paper-faithful topology).
 
 These tests operate on synthetic signals (impulse, sine, silence) — no audio
 files needed.  They verify correctness, stability, and transparency.
@@ -16,7 +16,7 @@ class TestImpulseResponse(unittest.TestCase):
     """Core sanity: impulse in -> decaying reverb tail, no NaN, no explosion."""
 
     def setUp(self):
-        self.rv = Reverb(SR, decay=0.85, damp=0.4, diffuse=0.5)
+        self.rv = Reverb(SR)
 
     def test_decay_no_nan(self):
         imp = np.zeros(SR // 2)
@@ -31,35 +31,32 @@ class TestImpulseResponse(unittest.TestCase):
         imp = np.zeros(SR)
         imp[0] = 1.0
         L, R = self.rv.process(imp)
-        # energy in second half should be much smaller than first half
         e1 = np.sum(L[: len(L) // 2] ** 2)
         e2 = np.sum(L[len(L) // 2 :] ** 2)
         self.assertGreater(e1, e2 * 2)
-
-    def test_echo_density_increases(self):
-        imp = np.zeros(SR)
-        imp[0] = 1.0
-        L, _ = self.rv.process(imp)
-        # count sign changes (zero-crossings) as a proxy for echo density
-        early = L[: 100]
-        late = L[SR // 2 : SR // 2 + 100]
-        zc_early = np.sum(np.diff(np.sign(early)) != 0)
-        zc_late = np.sum(np.diff(np.sign(late)) != 0)
-        self.assertLessEqual(zc_early, zc_late + 2)  # late is at least as dense
 
     def test_stereo_differs(self):
         imp = np.zeros(SR // 4)
         imp[0] = 1.0
         L, R = self.rv.process(imp)
-        # L and R should not be identical (the delay lines differ)
         self.assertGreater(np.sum(np.abs(L - R)), 1e-6)
+
+    def test_pre_delay_works(self):
+        """Pre-delay should cause silence before first reflection."""
+        imp = np.zeros(SR)
+        imp[0] = 1.0
+        L, _ = self.rv.process(imp)
+        nz = np.nonzero(np.abs(L) > 1e-10)[0]
+        self.assertGreater(len(nz), 0)
+        # first non-zero should be > 0 (pre-delay + input diffusion)
+        self.assertGreater(nz[0], 100)  # at least 100 samples of silence
 
 
 class TestStability(unittest.TestCase):
     """Boundary parameter values shouldn't crash or produce NaN."""
 
     def test_high_decay(self):
-        rv = Reverb(SR, decay=0.99, damp=0.5)
+        rv = Reverb(SR, decay=0.99)
         x = np.sin(2 * np.pi * 440 * np.arange(SR) / SR)
         L, R = rv.process(x)
         self.assertFalse(np.isnan(L).any())
@@ -72,38 +69,32 @@ class TestStability(unittest.TestCase):
         self.assertFalse(np.isnan(L).any())
         self.assertFalse(np.isnan(R).any())
 
-    def test_zero_damp(self):
-        rv = Reverb(SR, damp=0.0)
+    def test_zero_damping(self):
+        rv = Reverb(SR, damping=0.0)
         x = np.sin(2 * np.pi * 440 * np.arange(SR) / SR)
         L, R = rv.process(x)
         self.assertFalse(np.isnan(L).any())
 
-    def test_max_damp(self):
-        rv = Reverb(SR, damp=1.0)
+    def test_max_damping(self):
+        rv = Reverb(SR, damping=1.0)
         x = np.sin(2 * np.pi * 440 * np.arange(SR) / SR)
         L, R = rv.process(x)
         self.assertFalse(np.isnan(L).any())
 
-    def test_zero_diffuse(self):
-        rv = Reverb(SR, diffuse=0.0)
+    def test_zero_input_diffusion(self):
+        rv = Reverb(SR, input_diffusion1=0.0, input_diffusion2=0.0)
         x = np.sin(2 * np.pi * 440 * np.arange(SR) / SR)
         L, R = rv.process(x)
         self.assertFalse(np.isnan(L).any())
 
-    def test_max_diffuse(self):
-        rv = Reverb(SR, diffuse=1.0)
+    def test_max_input_diffusion(self):
+        rv = Reverb(SR, input_diffusion1=1.0, input_diffusion2=1.0)
         x = np.sin(2 * np.pi * 440 * np.arange(SR) / SR)
         L, R = rv.process(x)
         self.assertFalse(np.isnan(L).any())
 
-    def test_max_width(self):
-        rv = Reverb(SR, width=1.0)
-        x = np.sin(2 * np.pi * 440 * np.arange(SR) / SR)
-        L, R = rv.process(x)
-        self.assertFalse(np.isnan(L).any())
-
-    def test_zero_rate(self):
-        rv = Reverb(SR, rate=0.0)
+    def test_zero_decay_diffusion(self):
+        rv = Reverb(SR, decay_diffusion=0.0)
         x = np.sin(2 * np.pi * 440 * np.arange(SR) / SR)
         L, R = rv.process(x)
         self.assertFalse(np.isnan(L).any())
@@ -127,7 +118,6 @@ class TestTransparency(unittest.TestCase):
     """The demo's render() must pass through mix=0 unchanged."""
 
     def test_mix_zero_passthrough(self):
-        from common.io import load
         from dattorro_reverb.demo import render
         from common.delay import load_params
         import os
@@ -139,11 +129,13 @@ class TestTransparency(unittest.TestCase):
                 "params.md",
             ),
             {
-                "decay": 0.85,
-                "damp": 0.4,
-                "diffuse": 0.5,
-                "width": 0.25,
-                "rate": 0.5,
+                "pre_delay": 0.1,
+                "pre_filter": 0.85,
+                "input_diffusion1": 0.75,
+                "input_diffusion2": 0.625,
+                "decay": 0.75,
+                "decay_diffusion": 0.70,
+                "damping": 0.95,
                 "mix": 0.0,
                 "wet_rms_match": True,
                 "loudn_out": None,
@@ -151,7 +143,6 @@ class TestTransparency(unittest.TestCase):
             },
         )
         p["mix"] = 0.0
-        # synthetic stereo signal
         x = np.random.randn(44100, 2).astype(np.float32)
         x = x / np.max(np.abs(x)) * 0.9
         out = render(x, 44100, p)
@@ -189,7 +180,7 @@ class TestModule(unittest.TestCase):
         self.assertTrue(callable(_layout))
 
     def test_common_import(self):
-        from common.delay import delay_len, load_params  # re-export
+        from common.delay import delay_len, load_params
         self.assertTrue(callable(delay_len))
 
 

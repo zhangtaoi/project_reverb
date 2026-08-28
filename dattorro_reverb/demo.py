@@ -48,8 +48,11 @@ def finalize(out, loudn=None, peak_guard=True):
 
 def render(data, sr, p):
     mono = data.mean(axis=1) if data.ndim > 1 else data
-    rv = Reverb(sr, decay=p["decay"], damp=p["damp"], diffuse=p["diffuse"],
-                width=p["width"], rate=p["rate"])
+    rv = Reverb(sr, pre_delay=p["pre_delay"], pre_filter=p["pre_filter"],
+                input_diffusion1=p["input_diffusion1"],
+                input_diffusion2=p["input_diffusion2"],
+                decay=p["decay"], decay_diffusion=p["decay_diffusion"],
+                damping=p["damping"])
     L, R = rv.process(mono)
     wet = np.stack([L, R], axis=1)
     if p.get("wet_rms_match", True):
@@ -70,9 +73,10 @@ def main():
     a = ap.parse_args()
 
     p = load_params(a.params, {
-        "decay": 0.85, "damp": 0.4, "diffuse": 0.5,
-        "width": 0.25, "rate": 0.5, "mix": 0.5,
-        "wet_rms_match": True, "loudn_out": None, "peak_guard": True,
+        "pre_delay": 0.1, "pre_filter": 0.85,
+        "input_diffusion1": 0.75, "input_diffusion2": 0.625,
+        "decay": 0.75, "decay_diffusion": 0.70, "damping": 0.95,
+        "mix": 0.5, "wet_rms_match": True, "loudn_out": None, "peak_guard": True,
     })
     for k, v in (("mix", a.mix), ("loudn_out", a.loudn_out)):
         if v is not None:

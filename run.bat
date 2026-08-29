@@ -1,20 +1,20 @@
 @echo off
 rem ==================================================
-rem  Reverb render launcher - edit the 3 lines below, then double-click.
+rem  Reverb render launcher - edit the lines below, then double-click.
 rem  Usage: double-click, or run "run.bat" from a terminal.
 rem ==================================================
 setlocal
 
-rem ---- Edit these ----
-set SRC=One More Light.wav
+rem ---- Edit these (or just set them in params.md) ----
+set SRC=data\One More Light.wav
 set DST=output\output.wav
 set MIX=0.5
 set LOUDN=None
 set PRESET=hall
-rem ---------------------
-rem  SRC    input audio (project root; may be a full path)
-rem  DST    output file (written to project root)
-rem  MIX    dry/wet 0-1; set to None to use the mix in params.md
+rem -----------------------------------------------------
+rem  SRC    input audio (relative to project root)
+rem  DST    output file (relative to project root)
+rem  MIX    dry/wet 0-1; None = use params.md
 rem  LOUDN  output loudness in dBFS; None = no loudness match
 rem  PRESET preset name: plate, room, hall; None = algorithm defaults
 

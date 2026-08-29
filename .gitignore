@@ -1,7 +1,10 @@
-# audio
-*.mp3
-*.wav
-*.flac
+# audio files (input source files, not code)
+data/*.wav
+data/*.mp3
+data/*.flac
+
+# audio output (rendered files)
+output/
 
 # python cache
 __pycache__/
@@ -17,9 +20,9 @@ Thumbs.db
 # temp test files
 tests/tmp*.md
 
-# output files
-output/
-
 # C build artifacts
 *.exe
 *.obj
+
+# C reference impulse output
+tmp/*/ir_*.wav

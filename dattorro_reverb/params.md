@@ -2,6 +2,9 @@
 
 All user-tunable parameters live here. `demo.py` reads them from this file.
 
+Default input path: `data/One More Light.wav` (override via CLI: `python demo.py <src> <dst>`)
+Default output path: `output/output.wav` (override via CLI: `python demo.py <src> <dst>`)
+
 ## Algorithm params
 
 | name    | range    | default | meaning |

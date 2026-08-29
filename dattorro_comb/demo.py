@@ -61,8 +61,10 @@ def render(data, sr, p):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("src")
-    ap.add_argument("dst")
+    ap.add_argument("src", nargs="?", default=None,
+                    help="input audio file (default: from params.md)")
+    ap.add_argument("dst", nargs="?", default=None,
+                    help="output audio file (default: from params.md)")
     ap.add_argument("--params", default=PARAMS)
     ap.add_argument("--mix", type=float)
     ap.add_argument("--loudn_out", type=float)
@@ -73,10 +75,12 @@ def main():
         if v is not None:
             p[k] = v
 
-    data, sr = load(a.src)
+    src = a.src if a.src else p.get("src", "data/One More Light.wav")
+    dst = a.dst if a.dst else p.get("dst", "output/output.wav")
+    data, sr = load(src)
     out = render(data, sr, p)
-    save(a.dst, out.astype(np.float32), sr)
-    print(f"wrote {a.dst}  ({out.shape[0]} frames @ {sr}Hz, mix={p['mix']}, "
+    save(dst, out.astype(np.float32), sr)
+    print(f"wrote {dst}  ({out.shape[0]} frames @ {sr}Hz, mix={p['mix']}, "
           f"RMS={np.sqrt(np.mean(out**2)):.3f})")
 
 

@@ -1,6 +1,11 @@
 # Reverb Parameter Reference (Dattorro Comb)
 
-Simplified comb-based Dattorro variant. 8 parallel combs -> 2x(3 series allpass) -> 2 ladder allpass.
+## Input / Output
+
+| name    | default | meaning |
+|---------|---------|---------|
+| src     | data/One More Light.wav | input audio file path |
+| dst     | output/output.wav | output audio file path |
 
 ## Algorithm params
 
@@ -18,4 +23,8 @@ Simplified comb-based Dattorro variant. 8 parallel combs -> 2x(3 series allpass)
 |---------|--------|---------|---------|
 | mix     | 0-1    | 0.5     | dry/wet blend: out = (1-mix)*dry + mix*wet |
 | loudn_out | dBFS 或 none | none | preserve source loudness; set to -14 to force RMS to that level. |
-| peak_guard | true/false | true | pull down if peak exceeds 1.0. |
+| peak_guard | true/false | true | if the final peak exceeds 1.0, pull it down. |
+| limiter_threshold | 0.0-1.0 | none | soft limiter threshold (linear). 0.95 = -0.45 dBFS. |
+| limiter_knee | 0.0-0.2 | 0.05 | soft knee width. |
+| limiter_attack_ms | 0.1-10.0 | 1.0 | limiter attack time in ms. |
+| limiter_release_ms | 10.0-500.0 | 50.0 | limiter release time in ms. |

@@ -67,11 +67,12 @@ def load_presets(md_path):
             presets[current] = {}
         elif stripped.startswith("|") and current is not None:
             cells = [c.strip() for c in stripped.strip("|").split("|")]
-            if len(cells) < 3:
+            if len(cells) < 2:
                 continue
             if cells[0].startswith("name") or cells[0].startswith("---"):
                 continue
-            v = cells[2].strip()
+            # Preset tables use 2 columns (name, default)
+            v = cells[1].strip()
             low = v.lower()
             if low in ("true", "false"):
                 v = low == "true"

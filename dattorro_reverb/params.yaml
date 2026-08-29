@@ -1,0 +1,55 @@
+# =============================================================================
+# Dattorro 1997 混响参数
+# =============================================================================
+# 算法参数
+pre_delay: 0.1           # 预延迟（占最大 4800 样本的比例）
+pre_filter: 0.85          # 输入低通滤波量
+input_diffusion1: 0.75    # 输入扩散增益（前 2 个全通）
+input_diffusion2: 0.625   # 输入扩散增益（后 2 个全通）
+decay: 0.75               # 混响槽反馈增益。decay_diffusion2 = clamp(decay+0.15, 0.25, 0.50)
+decay_diffusion: 0.70     # 衰减扩散 1 增益（调制全通）
+damping: 0.95             # 槽内阻尼低通系数
+wet_rms_match: true       # wet 路径按干声 RMS 归一化
+
+# 渲染参数
+mix: 0.5                  # 干湿比
+loudn_out: null           # 输出响度 dBFS（null = 保持源响度）
+peak_guard: true          # 峰值超过 1.0 时拉下来
+limiter_threshold: null   # 软限幅阈值（null = 禁用）
+limiter_knee: 0.05        # 软拐点宽度
+limiter_attack_ms: 1.0    # 限幅器启动时间 (ms)
+limiter_release_ms: 50.0  # 限幅器释放时间 (ms)
+
+# =============================================================================
+# 预设
+# =============================================================================
+presets:
+  plate:
+    description: 明亮板式混响，短衰减、高扩散
+    pre_delay: 0.05
+    pre_filter: 0.70
+    input_diffusion1: 0.80
+    input_diffusion2: 0.70
+    decay: 0.50
+    decay_diffusion: 0.80
+    damping: 0.70
+
+  room:
+    description: 自然房间混响，中衰减、高阻尼
+    pre_delay: 0.15
+    pre_filter: 0.90
+    input_diffusion1: 0.70
+    input_diffusion2: 0.60
+    decay: 0.65
+    decay_diffusion: 0.60
+    damping: 0.85
+
+  hall:
+    description: 宽阔大厅混响，长衰减、低阻尼
+    pre_delay: 0.20
+    pre_filter: 0.95
+    input_diffusion1: 0.75
+    input_diffusion2: 0.625
+    decay: 0.85
+    decay_diffusion: 0.70
+    damping: 0.95

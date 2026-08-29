@@ -15,9 +15,10 @@ import numpy as np
 
 from common.io import load, save
 from common.delay import load_params
+from common.dsp import soft_limiter
 from dattorro_comb.reverb import Reverb
 
-PARAMS = os.path.join(os.path.dirname(__file__), "params.md")
+PARAMS = os.path.join(os.path.dirname(__file__), "params.yaml")
 DEFAULT = {
     "decay": 0.85, "damp": 0.4, "diffuse": 0.5,
     "width": 0.25, "rate": 0.5, "mix": 0.5,
@@ -36,13 +37,15 @@ def loudness_match(out, target_db, peak_guard=True):
     return out
 
 
-def finalize(out, loudn=None, peak_guard=True):
-    if loudn is None:
-        peak = np.abs(out).max()
-        if peak_guard and peak > 1.0:
-            out = out / peak
-    else:
+def finalize(out, loudn=None, peak_guard=True, limiter_params=None):
+    if loudn is not None:
         out = loudness_match(out, loudn, peak_guard)
+    if limiter_params:
+        out = soft_limiter(out, **limiter_params)
+    elif peak_guard:
+        peak = np.abs(out).max()
+        if peak > 1.0:
+            out = out / peak
     return out
 
 
@@ -55,8 +58,18 @@ def render(data, sr, p):
     if p.get("wet_rms_match", True):
         g = np.sqrt(np.mean(mono ** 2)) / np.sqrt(np.mean(wet ** 2) + 1e-12)
         wet = wet * g
-    out = (1 - p["mix"]) * data + p["mix"] * wet
-    return finalize(out, p.get("loudn_out"), p.get("peak_guard", True))
+    sig = (1 - p["mix"]) * data + p["mix"] * wet
+
+    limiter_params = None
+    if p.get("limiter_threshold") is not None:
+        limiter_params = {
+            "threshold": p["limiter_threshold"],
+            "knee": p.get("limiter_knee", 0.05),
+            "attack_ms": p.get("limiter_attack_ms", 1.0),
+            "release_ms": p.get("limiter_release_ms", 50.0),
+            "sr": sr,
+        }
+    return finalize(sig, p.get("loudn_out"), p.get("peak_guard", True), limiter_params)
 
 
 def main():

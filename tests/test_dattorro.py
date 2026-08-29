@@ -126,7 +126,7 @@ class TestTransparency(unittest.TestCase):
             os.path.join(
                 os.path.dirname(os.path.dirname(__file__)),
                 "dattorro_reverb",
-                "params.md",
+                "params.yaml",
             ),
             {
                 "pre_delay": 0.1,

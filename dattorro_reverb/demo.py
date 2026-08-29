@@ -18,7 +18,7 @@ from common.delay import load_params, load_presets
 from common.dsp import soft_limiter
 from dattorro_reverb.reverb import Reverb
 
-PARAMS = os.path.join(os.path.dirname(__file__), "params.md")
+PARAMS = os.path.join(os.path.dirname(__file__), "params.yaml")
 
 
 def loudness_match(out, target_db, peak_guard=True):

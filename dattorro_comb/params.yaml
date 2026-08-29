@@ -1,0 +1,18 @@
+# =============================================================================
+# Dattorro Comb 混响参数（紧凑简化版）
+# =============================================================================
+# 算法参数
+decay: 0.85       # 梳状反馈增益
+damp: 0.4         # 阻尼低通系数
+diffuse: 0.5      # 全通反馈增益
+width: 0.25       # LFO 调制深度
+rate: 0.5         # LFO 频率 (Hz)
+
+# 渲染参数
+mix: 0.5
+loudn_out: null
+peak_guard: true
+limiter_threshold: null
+limiter_knee: 0.05
+limiter_attack_ms: 1.0
+limiter_release_ms: 50.0
